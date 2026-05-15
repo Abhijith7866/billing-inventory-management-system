@@ -1,37 +1,33 @@
-body{
-    margin:0;
-    padding:0;
-    font-family:Arial, Helvetica, sans-serif;
+.add-product-container{
+
+    min-height:100vh;
+
     background:#f4f7fb;
-}
-
-
-
-.login-container{
 
     display:flex;
-    justify-content:center;
-    align-items:center;
 
-    height:100vh;
+    justify-content:center;
+
+    align-items:center;
 
 }
 
 
 
-.login-card{
+.add-product-card{
 
     background:white;
 
-    padding: 30px;
+    padding:40px;
 
-    width:350px;
+    width:400px;
 
     border-radius:15px;
 
     box-shadow:0px 4px 15px rgba(0,0,0,0.1);
 
     display:flex;
+
     flex-direction:column;
 
     gap:15px;
@@ -40,7 +36,7 @@ body{
 
 
 
-.login-title{
+.add-product-title{
 
     text-align:center;
 
@@ -52,7 +48,7 @@ body{
 
 
 
-.login-input{
+.add-product-input{
 
     padding:12px;
 
@@ -68,7 +64,7 @@ body{
 
 
 
-.login-input:focus{
+.add-product-input:focus{
 
     border:1px solid #2563eb;
 
@@ -76,7 +72,7 @@ body{
 
 
 
-.login-button{
+.add-product-button{
 
     padding:12px;
 
@@ -98,38 +94,8 @@ body{
 
 
 
-.login-button:hover{
+.add-product-button:hover{
 
     background:#1d4ed8;
-
-}
-
-
-
-.register-button{
-
-    padding:12px;
-
-    border:none;
-
-    border-radius:8px;
-
-    background:#0f172a;
-
-    color:white;
-
-    font-size:16px;
-
-    cursor:pointer;
-
-    transition:0.3s;
-
-}
-
-
-
-.register-button:hover{
-
-    background:#334155;
 
 }
