@@ -284,7 +284,9 @@ app.get("/bills", (req, res) => {
         }
     });
 });
-
+app.get("/", (req, res) => {
+  res.send("Billing Software Backend Running Successfully 🚀");
+});
 /* SERVER */
 app.listen(5000, () => {
     console.log("Server Started");
