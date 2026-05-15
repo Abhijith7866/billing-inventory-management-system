@@ -6,6 +6,14 @@ const app = express();
 
 /* MIDDLEWARES */
 app.use(cors());
+const cors = require("cors");
+
+app.use(
+  cors({
+    origin: "https://billing-software-blgdmah9q-abhijith7866s-projects.vercel.app/",
+    credentials: true
+  })
+);
 app.use(express.json());
 
 /* DATABASE CONNECTION */
