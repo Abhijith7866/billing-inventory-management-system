@@ -10,26 +10,28 @@ const db = require("./db");
 const app = express();
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
-app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin) return callback(null, true);
-    const allowed = process.env.ALLOWED_ORIGINS
-      ? process.env.ALLOWED_ORIGINS.split(",").map(o => o.trim())
-      : [];
-    if (allowed.includes(origin) || allowed.includes("*")) {
-      callback(null, true);
-    } else {
-      console.log("❌ CORS blocked:", origin);
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      const allowed = process.env.ALLOWED_ORIGINS
+        ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
+        : [];
+      if (allowed.includes(origin) || allowed.includes("*")) {
+        callback(null, true);
+      } else {
+        console.log("❌ CORS blocked:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
 // ✅ Express 5 compatible
-app.options("/(.*)", cors());
+
 app.use(express.json());
 
 // ─── DB Connect ───────────────────────────────────────────────────────────────
@@ -52,7 +54,9 @@ app.post("/register", async (req, res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({ error: "Username and password are required" });
+      return res
+        .status(400)
+        .json({ error: "Username and password are required" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -68,7 +72,6 @@ app.post("/register", async (req, res) => {
       }
       res.status(201).json({ message: "Registration successful" });
     });
-
   } catch (err) {
     console.error("❌ Register crash:", err.message);
     res.status(500).json({ error: "Internal server error" });
@@ -81,7 +84,9 @@ app.post("/login", async (req, res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({ error: "Username and password are required" });
+      return res
+        .status(400)
+        .json({ error: "Username and password are required" });
     }
 
     const sql = "SELECT * FROM users WHERE username = ?";
@@ -106,7 +111,7 @@ app.post("/login", async (req, res) => {
       const token = jwt.sign(
         { id: user.id, username: user.username },
         process.env.JWT_SECRET,
-        { expiresIn: "7d" }
+        { expiresIn: "7d" },
       );
 
       res.json({
@@ -115,7 +120,6 @@ app.post("/login", async (req, res) => {
         user: { id: user.id, username: user.username },
       });
     });
-
   } catch (err) {
     console.error("❌ Login crash:", err.message);
     res.status(500).json({ error: "Internal server error" });
@@ -130,7 +134,8 @@ app.post("/add-product", (req, res) => {
     return res.status(400).json({ error: "All product fields are required" });
   }
 
-  const sql = "INSERT INTO products (product_name, category, price, quantity) VALUES (?,?,?,?)";
+  const sql =
+    "INSERT INTO products (product_name, category, price, quantity) VALUES (?,?,?,?)";
 
   db.query(sql, [product_name, category, price, quantity], (err, result) => {
     if (err) {
