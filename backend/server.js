@@ -2,23 +2,33 @@
 require("dotenv").config();
 
 const express = require("express");
-const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const db = require("./db");
 
 const app = express();
 
-// ─── CORS ─────────────────────────────────────────────────────────────
-app.use(
-  cors({
-    origin: "*",
-  }),
-);
+// ─── MANUAL CORS FIX ─────────────────────────────────────────────────────────
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+  );
+
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
 
 app.use(express.json());
 
-// ─── DATABASE CONNECTION ──────────────────────────────────────────────
+// ─── DATABASE CONNECTION ─────────────────────────────────────────────────────
 db.connect((err) => {
   if (err) {
     console.log("❌ Database connection failed:", err);
@@ -27,12 +37,12 @@ db.connect((err) => {
   }
 });
 
-// ─── HOME ROUTE ───────────────────────────────────────────────────────
+// ─── HOME ROUTE ──────────────────────────────────────────────────────────────
 app.get("/", (req, res) => {
   res.send("Billing Software Backend Running Successfully 🚀");
 });
 
-// ─── REGISTER ─────────────────────────────────────────────────────────
+// ─── REGISTER ────────────────────────────────────────────────────────────────
 app.post("/register", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -44,6 +54,7 @@ app.post("/register", async (req, res) => {
     db.query(sql, [username, hashedPassword], (err, result) => {
       if (err) {
         console.log(err);
+
         return res.status(500).json({
           error: "Registration failed",
         });
@@ -55,13 +66,14 @@ app.post("/register", async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+
     res.status(500).json({
       error: "Internal server error",
     });
   }
 });
 
-// ─── LOGIN ────────────────────────────────────────────────────────────
+// ─── LOGIN ───────────────────────────────────────────────────────────────────
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
 
@@ -70,6 +82,7 @@ app.post("/login", (req, res) => {
   db.query(sql, [username], async (err, result) => {
     if (err) {
       console.log(err);
+
       return res.status(500).json({
         error: "Database error",
       });
@@ -110,7 +123,7 @@ app.post("/login", (req, res) => {
   });
 });
 
-// ─── ADD PRODUCT ──────────────────────────────────────────────────────
+// ─── ADD PRODUCT ─────────────────────────────────────────────────────────────
 app.post("/add-product", (req, res) => {
   const { product_name, category, price, quantity } = req.body;
 
@@ -120,6 +133,7 @@ app.post("/add-product", (req, res) => {
   db.query(sql, [product_name, category, price, quantity], (err, result) => {
     if (err) {
       console.log(err);
+
       return res.status(500).json({
         error: "Failed to add product",
       });
@@ -131,13 +145,14 @@ app.post("/add-product", (req, res) => {
   });
 });
 
-// ─── VIEW PRODUCTS ────────────────────────────────────────────────────
+// ─── VIEW PRODUCTS ───────────────────────────────────────────────────────────
 app.get("/view-products", (req, res) => {
   const sql = "SELECT * FROM products";
 
   db.query(sql, (err, result) => {
     if (err) {
       console.log(err);
+
       return res.status(500).json({
         error: "Failed to fetch products",
       });
@@ -147,7 +162,7 @@ app.get("/view-products", (req, res) => {
   });
 });
 
-// ─── SERVER START ─────────────────────────────────────────────────────
+// ─── SERVER START ────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
