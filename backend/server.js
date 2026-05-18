@@ -10,9 +10,11 @@ const db = require("./db");
 const app = express();
 
 // ─── CORS ─────────────────────────────────────────────────────────────
-app.use(cors({
-  origin: "*"
-}));
+app.use(
+  cors({
+    origin: "*",
+  }),
+);
 
 app.use(express.json());
 
@@ -37,8 +39,7 @@ app.post("/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const sql =
-      "INSERT INTO users (username, password) VALUES (?, ?)";
+    const sql = "INSERT INTO users (username, password) VALUES (?, ?)";
 
     db.query(sql, [username, hashedPassword], (err, result) => {
       if (err) {
@@ -64,8 +65,7 @@ app.post("/register", async (req, res) => {
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
 
-  const sql =
-    "SELECT * FROM users WHERE username = ?";
+  const sql = "SELECT * FROM users WHERE username = ?";
 
   db.query(sql, [username], async (err, result) => {
     if (err) {
@@ -83,10 +83,7 @@ app.post("/login", (req, res) => {
 
     const user = result[0];
 
-    const isMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(401).json({
@@ -102,7 +99,7 @@ app.post("/login", (req, res) => {
       process.env.JWT_SECRET || "secretkey",
       {
         expiresIn: "1d",
-      }
+      },
     );
 
     res.json({
@@ -115,32 +112,23 @@ app.post("/login", (req, res) => {
 
 // ─── ADD PRODUCT ──────────────────────────────────────────────────────
 app.post("/add-product", (req, res) => {
-  const {
-    product_name,
-    category,
-    price,
-    quantity,
-  } = req.body;
+  const { product_name, category, price, quantity } = req.body;
 
   const sql =
     "INSERT INTO products(product_name, category, price, quantity) VALUES (?, ?, ?, ?)";
 
-  db.query(
-    sql,
-    [product_name, category, price, quantity],
-    (err, result) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).json({
-          error: "Failed to add product",
-        });
-      }
-
-      res.json({
-        message: "Product added successfully",
+  db.query(sql, [product_name, category, price, quantity], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({
+        error: "Failed to add product",
       });
     }
-  );
+
+    res.json({
+      message: "Product added successfully",
+    });
+  });
 });
 
 // ─── VIEW PRODUCTS ────────────────────────────────────────────────────
