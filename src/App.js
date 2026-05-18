@@ -1,70 +1,88 @@
 import "./App.css";
-
 import { useState } from "react";
 import axios from "axios";
-
-import ViewProducts from "./ViewProducts";
-import CreateBills from "./CreateBills";
-
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 
 import Dashboard from "./Dashboard";
 import AddProduct from "./AddProduct";
+import ViewProducts from "./ViewProducts";
+import CreateBills from "./CreateBills";
+
+// ✅ One place to change the URL — never hardcode localhost
+const API_URL = "https://billing-software-production-dc60.up.railway.app";
 
 const Login = () => {
   const navigate = useNavigate();
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-  try {
-
-    const response = await axios.post(
-      "http://localhost:5000/login",
-      {
-        username: username,
-        password: password,
-      }
-    );
-
-    console.log(response.data);
-
-    if (response.data.length > 0) {
-
-      localStorage.setItem("username", username);
-
-      navigate("/dashboard", {
-        state: {
-          username: username,
-        },
-      });
-
-    } else {
-
-      alert("Invalid Credentials");
-
+    if (!username || !password) {
+      alert("Please enter username and password");
+      return;
     }
 
-  } catch (error) {
+    try {
+      setLoading(true);
 
-    console.log(error);
+      const response = await axios.post(`${API_URL}/login`, {
+        username,
+        password,
+      });
 
-    alert("Server Error");
+      console.log("Login response:", response.data);
 
-  }
-};
+      // ✅ New check — look for token in response
+      if (response.data.token) {
+        // ✅ Save token and username for later use
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("username", response.data.user.username);
+
+        navigate("/dashboard", {
+          state: { username: response.data.user.username },
+        });
+      } else {
+        alert("Invalid Credentials");
+      }
+    } catch (error) {
+      console.log("Login error:", error);
+
+      // ✅ Show the actual error message from backend
+      if (error.response) {
+        alert(error.response.data.error || "Login failed");
+      } else {
+        alert("Cannot reach server. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const register = async () => {
-    const response = await axios.post(
-      "https://billing-software-production-dc60.up.railway.app/register",
-      {
-        username: username,
-        password: password,
-      },
-    );
+    if (!username || !password) {
+      alert("Please enter username and password");
+      return;
+    }
 
-    alert(response.data);
+    try {
+      setLoading(true);
+
+      const response = await axios.post(`${API_URL}/register`, {
+        username,
+        password,
+      });
+
+      alert(response.data.message || "Registration successful");
+    } catch (error) {
+      if (error.response) {
+        alert(error.response.data.error || "Registration failed");
+      } else {
+        alert("Cannot reach server. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -88,12 +106,20 @@ const Login = () => {
           className="login-input"
         />
 
-        <button onClick={handleLogin} className="login-button">
-          Login
+        <button
+          onClick={handleLogin}
+          className="login-button"
+          disabled={loading}
+        >
+          {loading ? "Please wait..." : "Login"}
         </button>
 
-        <button onClick={register} className="register-button">
-          Register
+        <button
+          onClick={register}
+          className="register-button"
+          disabled={loading}
+        >
+          {loading ? "Please wait..." : "Register"}
         </button>
       </div>
     </div>
