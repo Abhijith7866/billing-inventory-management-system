@@ -2,150 +2,166 @@
 require("dotenv").config();
 
 const express = require("express");
+const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const db = require("./db");
 
 const app = express();
 
-// ─── CORS ─────────────────────────────────────────────────────────────────────
-const cors = require("cors");
-
-app.use(
-  cors({
-    origin: process.env.ALLOWED_ORIGINS,
-    credentials: true,
-  }),
-);
-// ✅ Express 5 compatible
+// ─── CORS ─────────────────────────────────────────────────────────────
+app.use(cors({
+  origin: "*"
+}));
 
 app.use(express.json());
 
-// ─── DB Connect ───────────────────────────────────────────────────────────────
+// ─── DATABASE CONNECTION ──────────────────────────────────────────────
 db.connect((err) => {
   if (err) {
-    console.error("❌ MySQL connection failed:", err.message);
+    console.log("❌ Database connection failed:", err);
   } else {
     console.log("✅ MySQL Connected");
   }
 });
 
-// ─── Health Check ─────────────────────────────────────────────────────────────
+// ─── HOME ROUTE ───────────────────────────────────────────────────────
 app.get("/", (req, res) => {
-  res.json({ status: "API Working" });
+  res.send("Billing Software Backend Running Successfully 🚀");
 });
 
-// ─── Register ─────────────────────────────────────────────────────────────────
+// ─── REGISTER ─────────────────────────────────────────────────────────
 app.post("/register", async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    if (!username || !password) {
-      return res
-        .status(400)
-        .json({ error: "Username and password are required" });
-    }
-
     const hashedPassword = await bcrypt.hash(password, 10);
-    const sql = "INSERT INTO users (username, password) VALUES (?, ?)";
+
+    const sql =
+      "INSERT INTO users (username, password) VALUES (?, ?)";
 
     db.query(sql, [username, hashedPassword], (err, result) => {
       if (err) {
-        console.error("❌ Register error:", err.message);
-        if (err.code === "ER_DUP_ENTRY") {
-          return res.status(409).json({ error: "Username already exists" });
-        }
-        return res.status(500).json({ error: "Registration failed" });
+        console.log(err);
+        return res.status(500).json({
+          error: "Registration failed",
+        });
       }
-      res.status(201).json({ message: "Registration successful" });
-    });
-  } catch (err) {
-    console.error("❌ Register crash:", err.message);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-// ─── Login ────────────────────────────────────────────────────────────────────
-app.post("/login", async (req, res) => {
-  try {
-    const { username, password } = req.body;
-
-    if (!username || !password) {
-      return res
-        .status(400)
-        .json({ error: "Username and password are required" });
-    }
-
-    const sql = "SELECT * FROM users WHERE username = ?";
-
-    db.query(sql, [username], async (err, results) => {
-      if (err) {
-        console.error("❌ Login DB error:", err.message);
-        return res.status(500).json({ error: "Login failed" });
-      }
-
-      if (results.length === 0) {
-        return res.status(401).json({ error: "Invalid username or password" });
-      }
-
-      const user = results[0];
-
-      const isValid = await bcrypt.compare(password, user.password);
-      if (!isValid) {
-        return res.status(401).json({ error: "Invalid username or password" });
-      }
-
-      const token = jwt.sign(
-        { id: user.id, username: user.username },
-        process.env.JWT_SECRET,
-        { expiresIn: "7d" },
-      );
 
       res.json({
-        message: "Login successful",
-        token,
-        user: { id: user.id, username: user.username },
+        message: "User registered successfully",
       });
     });
-  } catch (err) {
-    console.error("❌ Login crash:", err.message);
-    res.status(500).json({ error: "Internal server error" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error: "Internal server error",
+    });
   }
 });
 
-// ─── Add Product ──────────────────────────────────────────────────────────────
-app.post("/add-product", (req, res) => {
-  const { product_name, category, price, quantity } = req.body;
-
-  if (!product_name || !category || !price || !quantity) {
-    return res.status(400).json({ error: "All product fields are required" });
-  }
+// ─── LOGIN ────────────────────────────────────────────────────────────
+app.post("/login", (req, res) => {
+  const { username, password } = req.body;
 
   const sql =
-    "INSERT INTO products (product_name, category, price, quantity) VALUES (?,?,?,?)";
+    "SELECT * FROM users WHERE username = ?";
 
-  db.query(sql, [product_name, category, price, quantity], (err, result) => {
+  db.query(sql, [username], async (err, result) => {
     if (err) {
-      console.error("❌ Add product error:", err.message);
-      return res.status(500).json({ error: "Failed to add product" });
+      console.log(err);
+      return res.status(500).json({
+        error: "Database error",
+      });
     }
-    res.status(201).json({ message: "Product added successfully" });
+
+    if (result.length === 0) {
+      return res.status(401).json({
+        error: "Invalid username",
+      });
+    }
+
+    const user = result[0];
+
+    const isMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
+
+    if (!isMatch) {
+      return res.status(401).json({
+        error: "Invalid password",
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        id: user.id,
+        username: user.username,
+      },
+      process.env.JWT_SECRET || "secretkey",
+      {
+        expiresIn: "1d",
+      }
+    );
+
+    res.json({
+      message: "Login successful",
+      token,
+      user,
+    });
   });
 });
 
-// ─── View Products ────────────────────────────────────────────────────────────
+// ─── ADD PRODUCT ──────────────────────────────────────────────────────
+app.post("/add-product", (req, res) => {
+  const {
+    product_name,
+    category,
+    price,
+    quantity,
+  } = req.body;
+
+  const sql =
+    "INSERT INTO products(product_name, category, price, quantity) VALUES (?, ?, ?, ?)";
+
+  db.query(
+    sql,
+    [product_name, category, price, quantity],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({
+          error: "Failed to add product",
+        });
+      }
+
+      res.json({
+        message: "Product added successfully",
+      });
+    }
+  );
+});
+
+// ─── VIEW PRODUCTS ────────────────────────────────────────────────────
 app.get("/view-products", (req, res) => {
-  db.query("SELECT * FROM products", (err, results) => {
+  const sql = "SELECT * FROM products";
+
+  db.query(sql, (err, result) => {
     if (err) {
-      console.error("❌ View products error:", err.message);
-      return res.status(500).json({ error: "Failed to fetch products" });
+      console.log(err);
+      return res.status(500).json({
+        error: "Failed to fetch products",
+      });
     }
-    res.json(results);
+
+    res.json(result);
   });
 });
 
-// ─── Start Server ─────────────────────────────────────────────────────────────
+// ─── SERVER START ─────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
   console.log(`✅ Server Started on port ${PORT}`);
 });
