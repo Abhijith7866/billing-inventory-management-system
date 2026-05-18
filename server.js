@@ -37,7 +37,8 @@ app.use(
 app.use(express.json());
 
 // DB Connection
-db.connect((err) => {
+// ✅ Test connection without calling .connect()
+db.query("SELECT 1", (err) => {
   if (err) {
     console.log("❌ MySQL connection failed:", err.message);
   } else {
@@ -53,6 +54,7 @@ app.get("/", (req, res) => {
 // Register Route
 app.post("/register", async (req, res) => {
   try {
+    console.log("LOGIN BODY:", req.body);
     const { username, password } = req.body;
 
     if (!username || !password) {
