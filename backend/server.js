@@ -2,7 +2,6 @@
 require("dotenv").config();
 
 const express = require("express");
-const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const db = require("./db");
@@ -10,26 +9,14 @@ const db = require("./db");
 const app = express();
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
+const cors = require("cors");
+
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      const allowed = process.env.ALLOWED_ORIGINS
-        ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
-        : [];
-      if (allowed.includes(origin) || allowed.includes("*")) {
-        callback(null, true);
-      } else {
-        console.log("❌ CORS blocked:", origin);
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: process.env.ALLOWED_ORIGINS,
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
-
 // ✅ Express 5 compatible
 
 app.use(express.json());
