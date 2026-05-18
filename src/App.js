@@ -1,10 +1,21 @@
 import "./App.css";
+<<<<<<< HEAD:src/App.js
 import { useState } from "react";
 import axios from "axios";
+=======
+
+import { useState } from "react";
+import axios from "axios";
+
+import ViewProducts from "./ViewProducts";
+import CreateBills from "./CreateBills";
+
+>>>>>>> 6a597af (fix: CORS config and frontend API URL):backend/src/App.js
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 
 import Dashboard from "./Dashboard";
 import AddProduct from "./AddProduct";
+<<<<<<< HEAD:src/App.js
 import ViewProducts from "./ViewProducts";
 import CreateBills from "./CreateBills";
 
@@ -83,6 +94,63 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
+=======
+
+const Login = () => {
+  const navigate = useNavigate();
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async () => {
+  try {
+
+    const response = await axios.post(
+      "http://localhost:5000/login",
+      {
+        username: username,
+        password: password,
+      }
+    );
+
+    console.log(response.data);
+
+    if (response.data.length > 0) {
+
+      localStorage.setItem("username", username);
+
+      navigate("/dashboard", {
+        state: {
+          username: username,
+        },
+      });
+
+    } else {
+
+      alert("Invalid Credentials");
+
+    }
+
+  } catch (error) {
+
+    console.log(error);
+
+    alert("Server Error");
+
+  }
+};
+
+  const register = async () => {
+    const response = await axios.post(
+      "https://billing-software-production-dc60.up.railway.app/register",
+      {
+        username: username,
+        password: password,
+      },
+    );
+
+    alert(response.data);
+>>>>>>> 6a597af (fix: CORS config and frontend API URL):backend/src/App.js
   };
 
   return (
@@ -106,6 +174,7 @@ const Login = () => {
           className="login-input"
         />
 
+<<<<<<< HEAD:src/App.js
         <button
           onClick={handleLogin}
           className="login-button"
@@ -120,6 +189,14 @@ const Login = () => {
           disabled={loading}
         >
           {loading ? "Please wait..." : "Register"}
+=======
+        <button onClick={handleLogin} className="login-button">
+          Login
+        </button>
+
+        <button onClick={register} className="register-button">
+          Register
+>>>>>>> 6a597af (fix: CORS config and frontend API URL):backend/src/App.js
         </button>
       </div>
     </div>

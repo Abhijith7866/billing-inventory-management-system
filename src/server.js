@@ -12,12 +12,38 @@ const app = express();
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(cors({
+<<<<<<< HEAD:src/server.js
   origin: process.env.ALLOWED_ORIGINS 
     ? process.env.ALLOWED_ORIGINS.split(",") 
     : "*",
   credentials: true,
 }));
 app.use(express.json());
+=======
+  origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    
+    const allowed = process.env.ALLOWED_ORIGINS 
+      ? process.env.ALLOWED_ORIGINS.split(",").map(o => o.trim())
+      : [];
+
+    if (allowed.includes(origin) || allowed.includes("*")) {
+      callback(null, true);
+    } else {
+      console.log("❌ CORS blocked:", origin);
+      console.log("✅ Allowed origins:", allowed);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+// Handle preflight requests for ALL routes
+app.options("*", cors());
+>>>>>>> 6a597af (fix: CORS config and frontend API URL):backend/src/server.js
 
 // ─── DB Connect ───────────────────────────────────────────────────────────────
 db.connect((err) => {
