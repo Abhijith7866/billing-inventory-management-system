@@ -4,7 +4,7 @@
   "description": "Billing Software Backend",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "node src/server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
