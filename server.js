@@ -8,11 +8,29 @@ const db = require("./db");
 
 const app = express();
 
+// Debug: confirm env vars are loaded
+console.log("✅ ALLOWED_ORIGINS:", process.env.ALLOWED_ORIGINS);
+console.log("✅ JWT_SECRET set:", !!process.env.JWT_SECRET);
+
 // CORS
 app.use(
   cors({
-    origin: process.env.ALLOWED_ORIGINS,
+    origin: function (origin, callback) {
+      const allowed = (process.env.ALLOWED_ORIGINS || "")
+        .split(",")
+        .map((o) => o.trim());
+
+      // Allow requests with no origin (e.g. Postman, curl, Railway health checks)
+      if (!origin || allowed.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log("❌ CORS blocked for origin:", origin);
+        callback(new Error(`CORS blocked for origin: ${origin}`));
+      }
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -45,8 +63,7 @@ app.post("/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const sql =
-      "INSERT INTO users (username, password) VALUES (?, ?)";
+    const sql = "INSERT INTO users (username, password) VALUES (?, ?)";
 
     db.query(sql, [username, hashedPassword], (err, result) => {
       if (err) {
@@ -105,10 +122,7 @@ app.post("/login", (req, res) => {
 
     const user = result[0];
 
-    const validPassword = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const validPassword = await bcrypt.compare(password, user.password);
 
     if (!validPassword) {
       return res.status(401).json({
