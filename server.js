@@ -1,201 +1,414 @@
-require("dotenv").config();
-
 const express = require("express");
+const mysql = require("mysql2");
 const cors = require("cors");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const db = require("./db");
-
 const app = express();
 
-// Debug: confirm env vars are loaded
-console.log("✅ ALLOWED_ORIGINS:", process.env.ALLOWED_ORIGINS);
-console.log("✅ JWT_SECRET set:", !!process.env.JWT_SECRET);
-
-// CORS
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      const allowed = (process.env.ALLOWED_ORIGINS || "")
-        .split(",")
-        .map((o) => o.trim());
-
-      // Allow requests with no origin (e.g. Postman, curl, Railway health checks)
-      if (!origin || allowed.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.log("❌ CORS blocked for origin:", origin);
-        callback(new Error(`CORS blocked for origin: ${origin}`));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+app.use(cors());
 
 app.use(express.json());
 
-// DB Connection
-// ✅ Test connection without calling .connect()
-db.query("SELECT 1", (err) => {
-  if (err) {
-    console.log("❌ MySQL connection failed:", err.message);
-  } else {
-    console.log("✅ MySQL Connected");
-  }
-});
 
-// Home Route
-app.get("/", (req, res) => {
-  res.send("Billing Software Backend Running Successfully 🚀");
+const db = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT,
+  ssl: { rejectUnauthorized: false },  // ← add this
+  waitForConnections: true,
+  connectionLimit: 10,
 });
+// db.connect((err) => {
+//   if (err) {
+//     console.log("Database Connection Failed");
+//     console.log(err);
+//   } else {
+//     console.log("Database Connected");
+//   }
+// });
 
-// Register Route
-app.post("/register", async (req, res) => {
+/* LOGIN */
+
+// ✅ NEW — returns token properly
+app.post("/login", async (req, res) => {
   try {
-    console.log("LOGIN BODY:", req.body);
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({
-        error: "Username and password are required",
-      });
+      return res
+        .status(400)
+        .json({ error: "Username and password are required" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const sql = "SELECT * FROM users WHERE username = ?";
 
-    const sql = "INSERT INTO users (username, password) VALUES (?, ?)";
-
-    db.query(sql, [username, hashedPassword], (err, result) => {
+    db.query(sql, [username], async (err, results) => {
       if (err) {
-        console.log("❌ Register Error:", err);
-
-        if (err.code === "ER_DUP_ENTRY") {
-          return res.status(400).json({
-            error: "Username already exists",
-          });
-        }
-
-        return res.status(500).json({
-          error: "Registration failed",
-        });
+        console.log("❌ Login DB error:", err);
+        return res.status(500).json({ error: "Database error" });
       }
 
-      res.status(201).json({
-        message: "User Registered Successfully",
+      // ✅ User not found
+      if (results.length === 0) {
+        return res.status(401).json({ error: "Wrong username or password" });
+      }
+
+      const user = results[0];
+
+      // ✅ Check password
+      const isValid = await bcrypt.compare(password, user.password);
+
+      if (!isValid) {
+        return res.status(401).json({ error: "Wrong username or password" });
+      }
+
+      // ✅ Create token
+      const token = jwt.sign(
+        { id: user.id, username: user.username },
+        process.env.JWT_SECRET || "secret123",
+        { expiresIn: "7d" },
+      );
+
+      // ✅ Send token back
+      res.json({
+        message: "Login successful",
+        token,
+        user: {
+          id: user.id,
+          username: user.username,
+        },
       });
     });
   } catch (err) {
-    console.log("❌ Register Crash:", err);
-
-    res.status(500).json({
-      error: "Internal Server Error",
-    });
+    console.log("❌ Login crash:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// Login Route
-app.post("/login", (req, res) => {
-  const { username, password } = req.body;
+/* REGISTER */
 
-  if (!username || !password) {
-    return res.status(400).json({
-      error: "Username and password are required",
-    });
-  }
+app.post("/register", async (req, res) => {
+  const username = req.body.username;
 
-  const sql = "SELECT * FROM users WHERE username = ?";
+  const password = req.body.password;
 
-  db.query(sql, [username], async (err, result) => {
-    if (err) {
-      console.log("❌ Login DB Error:", err);
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-      return res.status(500).json({
-        error: "Database Error",
-      });
-    }
+    const sql = "INSERT INTO users(username, password) VALUES (?, ?)";
 
-    if (result.length === 0) {
-      return res.status(401).json({
-        error: "User not found",
-      });
-    }
+    db.query(sql, [username, hashedPassword], (err, result) => {
+      if (err) {
+        console.log(err);
 
-    const user = result[0];
-
-    const validPassword = await bcrypt.compare(password, user.password);
-
-    if (!validPassword) {
-      return res.status(401).json({
-        error: "Wrong password",
-      });
-    }
-
-    const token = jwt.sign(
-      {
-        id: user.id,
-        username: user.username,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
+        res.status(500).send("Error");
+      } else {
+        res.send("User Registered");
       }
-    );
-
-    res.json({
-      message: "Login successful",
-      token,
-      user: {
-        id: user.id,
-        username: user.username,
-      },
     });
-  });
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).send("Error");
+  }
 });
 
-// Add Product
+/* ADD PRODUCT */
+
 app.post("/add-product", (req, res) => {
-  const { product_name, category, price, quantity } = req.body;
+  const {
+    product_name,
 
-  if (!product_name || !category || !price || !quantity) {
-    return res.status(400).json({
-      error: "All fields are required",
-    });
-  }
+    category,
 
-  const sql =
-    "INSERT INTO products (product_name, category, price, quantity) VALUES (?, ?, ?, ?)";
+    price,
+
+    quantity,
+  } = req.body;
+
+  const sql = `INSERT INTO products
+    (
+        product_name,
+        category,
+        price,
+        quantity
+    )
+    VALUES (?, ?, ?, ?)`;
 
   db.query(
     sql,
+
     [product_name, category, price, quantity],
+
     (err, result) => {
       if (err) {
-        console.log("❌ Add Product Error:", err);
-
-        return res.status(500).json({
-          error: "Failed to add product",
-        });
+        res.send("Error");
+      } else {
+        res.send("Product Added");
       }
-
-      res.status(201).json({
-        message: "Product added successfully",
-      });
-    }
+    },
   );
 });
 
-// View Products
-app.get("/view-products", (req, res) => {
-  const sql = "SELECT * FROM products";
+/* GET PRODUCTS */
+
+app.get("/products", (req, res) => {
+  db.query("SELECT * FROM products", (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(result);
+  });
+});
+/* DELETE PRODUCT */
+
+app.delete("/delete-product/:id", (req, res) => {
+  const id = req.params.id;
+
+  const sql = "DELETE FROM products WHERE id=?";
+
+  db.query(
+    sql,
+
+    [id],
+
+    (err, result) => {
+      if (err) {
+        res.send("Error");
+      } else {
+        res.send("Product Deleted");
+      }
+    },
+  );
+});
+
+/* UPDATE PRODUCT */
+
+app.put("/update-product/:id", (req, res) => {
+  const id = req.params.id;
+
+  const {
+    product_name,
+
+    category,
+
+    price,
+
+    quantity,
+  } = req.body;
+
+  const sql = `UPDATE products
+    SET
+    product_name=?,
+    category=?,
+    price=?,
+    quantity=?
+    WHERE id=?`;
+
+  db.query(
+    sql,
+
+    [product_name, category, price, quantity, id],
+
+    (err, result) => {
+      if (err) {
+        res.send("Error");
+      } else {
+        res.send("Product Updated");
+      }
+    },
+  );
+});
+
+/* UPDATE STOCK */
+
+app.put("/update-stock/:id", (req, res) => {
+  const id = req.params.id;
+
+  const quantity = req.body.quantity;
+
+  const sql = "UPDATE products SET quantity = quantity - ? WHERE id=?";
+
+  db.query(
+    sql,
+
+    [quantity, id],
+
+    (err, result) => {
+      if (err) {
+        res.send("Error");
+      } else {
+        res.send("Stock Updated");
+      }
+    },
+  );
+});
+
+/* RESTORE STOCK */
+
+app.put("/restore-stock/:id", (req, res) => {
+  const id = req.params.id;
+
+  const quantity = req.body.quantity;
+
+  const sql = "UPDATE products SET quantity = quantity + ? WHERE id=?";
+
+  db.query(
+    sql,
+
+    [quantity, id],
+
+    (err, result) => {
+      if (err) {
+        res.send("Error");
+      } else {
+        res.send("Stock Restored");
+      }
+    },
+  );
+});
+
+/* SAVE BILL */
+
+app.post("/save-bill", (req, res) => {
+  const {
+    invoiceNumber,
+
+    customerName,
+
+    customerPhone,
+
+    finalTotal,
+
+    billDate,
+
+    items,
+  } = req.body;
+
+  // INSERT BILL
+
+  const billSql = `INSERT INTO bills
+    (
+        invoice_number,
+        customer_name,
+        customer_phone,
+        final_total,
+        bill_date
+    )
+    VALUES (?, ?, ?, ?, ?)`;
+
+  db.query(
+    billSql,
+
+    [invoiceNumber, customerName, customerPhone, finalTotal, billDate],
+
+    (err, result) => {
+      if (err) {
+        res.send(err);
+      } else {
+        // GET BILL ID
+
+        const billId = result.insertId;
+
+        // SAVE ITEMS
+
+        items.forEach((item) => {
+          const itemSql = `INSERT INTO bill_items
+                    (
+                        bill_id,
+                        product_name,
+                        category,
+                        price,
+                        quantity,
+                        total
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?)`;
+
+          db.query(
+            itemSql,
+
+            [
+              billId,
+
+              item.product_name,
+
+              item.category,
+
+              item.price,
+
+              item.billQuantity,
+
+              item.total,
+            ],
+          );
+        });
+
+        res.send("Bill Saved");
+      }
+    },
+  );
+});
+
+/* GET BILLS */
+
+app.get("/bills", (req, res) => {
+  const sql = "SELECT * FROM bills ORDER BY id DESC";
 
   db.query(sql, (err, result) => {
     if (err) {
-      console.log("❌ View Products Error:", err);
+      res.send(err);
+    } else {
+      res.send(result);
+    }
+  });
+});
+// =====================================
+// CATEGORY ANALYTICS
+// =====================================
+
+app.get("/category-analytics", (req, res) => {
+  const sql = `
+    SELECT
+      category,
+      COUNT(*) AS total
+    FROM products
+    GROUP BY category
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      return res.status(500).json(err);
+    }
+
+    res.json(result);
+  });
+});
+
+// =====================================
+// MONTHLY SALES ANALYTICS
+// =====================================
+
+app.get("/monthly-sales", (req, res) => {
+  const sql = `
+
+    SELECT
+      DATE_FORMAT(bill_date, '%b') AS month,
+      SUM(final_total) AS revenue
+
+    FROM bills
+
+    GROUP BY MONTH(bill_date), month
+
+    ORDER BY MONTH(bill_date)
+
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.log(err);
 
       return res.status(500).json({
-        error: "Failed to fetch products",
+        message: "Database Error",
       });
     }
 
@@ -203,9 +416,103 @@ app.get("/view-products", (req, res) => {
   });
 });
 
-// Start Server
+// =====================================
+// TOP SELLING PRODUCTS
+// =====================================
+
+// =====================================
+// TOP SELLING PRODUCTS
+// =====================================
+
+app.get("/top-products", (req, res) => {
+  const sql = `
+
+    SELECT
+      product_name,
+      SUM(quantity) AS totalSold
+
+    FROM bill_items
+
+    GROUP BY product_name
+
+    ORDER BY totalSold DESC
+
+    LIMIT 5
+
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.log("TOP PRODUCTS ERROR:", err);
+
+      return res.status(500).json({
+        message: "Database Error",
+      });
+    }
+
+    res.json(result);
+  });
+});
+// ======================================
+// BILL DETAILS
+// ======================================
+
+app.get("/bill-details/:id", (req, res) => {
+  const id = req.params.id;
+
+  const billSql = `
+  
+    SELECT * FROM bills
+  
+    WHERE id = ?
+  
+  `;
+
+  db.query(billSql, [id], (err, billResult) => {
+    if (err) {
+      console.log(err);
+
+      return res.status(500).json({
+        message: "Database Error",
+      });
+    }
+
+    const itemSql = `
+    
+      SELECT * FROM bill_items
+    
+      WHERE bill_id = ?
+    
+    `;
+
+    db.query(itemSql, [id], (err, itemResult) => {
+      if (err) {
+        console.log(err);
+
+        return res.status(500).json({
+          message: "Database Error",
+        });
+      }
+
+      res.json({
+        bill: billResult[0],
+
+        items: itemResult,
+      });
+    });
+  });
+});
+
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`✅ Server Started on port ${PORT}`);
+app.get("/", (req, res) => {
+  res.send("Backend is running successfully 🚀");
 });
+
+
+
+// ✅ Replace with this
+if (require.main === module) {
+  app.listen(3000);
+}
+module.exports = app;
