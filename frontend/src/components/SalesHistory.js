@@ -4,8 +4,7 @@ import axios from "axios";
 import "./SalesHistory.css";
 
 function SalesHistory() {
-
-  const API = "http://localhost:5000";
+  const API = "https://billing-backend-sigma.vercel.app";
 
   const [sales, setSales] = useState([]);
 
@@ -13,17 +12,11 @@ function SalesHistory() {
   // Fetch Sales History
   // =========================
   const fetchSalesHistory = async () => {
-
     try {
-
-      const res = await axios.get(
-        `${API}/sales-history`
-      );
+      const res = await axios.get(`${API}/sales-history`);
 
       setSales(res.data);
-
     } catch (err) {
-
       console.log(err);
 
       alert("Failed to fetch sales history");
@@ -35,67 +28,36 @@ function SalesHistory() {
   }, []);
 
   return (
-
     <div className="sales-history-container">
-
-      <h1 className="sales-history-title">
-        Sales History
-      </h1>
+      <h1 className="sales-history-title">Sales History</h1>
 
       {sales.length === 0 ? (
-
-        <p className="no-sales">
-          No Sales Found
-        </p>
-
+        <p className="no-sales">No Sales Found</p>
       ) : (
-
         <table className="sales-table">
-
           <thead>
-
             <tr>
-
               <th>Bill ID</th>
 
               <th>Total Amount</th>
 
               <th>Date & Time</th>
-
             </tr>
-
           </thead>
 
           <tbody>
-
             {sales.map((bill) => (
-
               <tr key={bill.id}>
+                <td>#{bill.id}</td>
 
-                <td>
-                  #{bill.id}
-                </td>
+                <td>₹ {bill.total_amount}</td>
 
-                <td>
-                  ₹ {bill.total_amount}
-                </td>
-
-                <td>
-                  {new Date(
-                    bill.created_at
-                  ).toLocaleString()}
-                </td>
-
+                <td>{new Date(bill.created_at).toLocaleString()}</td>
               </tr>
-
             ))}
-
           </tbody>
-
         </table>
-
       )}
-
     </div>
   );
 }

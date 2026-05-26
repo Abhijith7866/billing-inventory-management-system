@@ -20,7 +20,7 @@ function BillDetails() {
   const fetchBillDetails = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/bill-details/${id}`,
+        `https://billing-backend-sigma.vercel.app/bill-details/${id}`,
       );
 
       setBill(response.data.bill);
@@ -111,11 +111,7 @@ function BillDetails() {
         <div className="total-section">
           <h2>Total Amount</h2>
 
-          <h1>
-
-  ₹ {bill.final_total || bill.total}
-
-</h1>
+          <h1>₹ {bill.final_total || bill.total}</h1>
         </div>
       </div>
     </div>

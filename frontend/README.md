@@ -1,62 +1,25 @@
 # Billing & Inventory Management System
 
-A full-stack Billing and Inventory Management System built using React.js, Node.js, Express.js, and MySQL.
+## Live Demo
 
----
+Frontend:https://billing-frontend-rho-amber.vercel.app
+Backend: https://billing-backend-sigma.vercel.app
 
-# Features
+## Features
 
-## Authentication
-- User Login
-- User Registration
-- Secure Authentication
+* User Authentication
+* Product Management
+* Billing System
+* Invoice Generation
+* Analytics Dashboard
+* Revenue Charts
+* Low Stock Alerts
 
-## Product Management
-- Add Products
-- Edit Products
-- Delete Products
-- View Products
-- Stock Management
-- Low Stock Alerts
+## Tech Stack
 
-## Billing System
-- Create Bills
-- GST Calculation
-- Quantity Management
-- Save Bills
-- Invoice Generation
-
-## PDF Invoice
-- Download Professional Invoice PDF
-- Clean Invoice Design
-
-## Dashboard Analytics
-- Revenue Analytics
-- Category Distribution
-- Monthly Revenue
-- Top Selling Products
-- Total Revenue Overview
-
----
-
-# Tech Stack
-
-## Frontend
-- React.js
-- CSS
-- Recharts
-
-## Backend
-- Node.js
-- Express.js
-
-## Database
-- MySQL
-
----
-
-# Project Structure
-
-```bash
-frontend/
-backend/
+* React.js
+* Node.js
+* Express.js
+* MySQL
+* Vercel
+* Aiven Cloud Database

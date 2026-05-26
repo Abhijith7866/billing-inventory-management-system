@@ -47,7 +47,9 @@ const CreateBill = () => {
   }, []);
 
   const fetchProducts = async () => {
-    const response = await axios.get("http://localhost:5000/products");
+    const response = await axios.get(
+      "https://billing-backend-sigma.vercel.app/products",
+    );
 
     setProducts(response.data);
   };
@@ -75,9 +77,12 @@ const CreateBill = () => {
 
     // UPDATE STOCK
 
-    await axios.put(`http://localhost:5000/update-stock/${product.id}`, {
-      quantity: quantity,
-    });
+    await axios.put(
+      `https://billing-backend-sigma.vercel.app/update-stock/${product.id}`,
+      {
+        quantity: quantity,
+      },
+    );
 
     // EXISTING PRODUCT
 
@@ -133,9 +138,12 @@ const CreateBill = () => {
   const removeItem = async (index) => {
     const item = billItems[index];
 
-    await axios.put(`http://localhost:5000/restore-stock/${item.id}`, {
-      quantity: item.billQuantity,
-    });
+    await axios.put(
+      `https://billing-backend-sigma.vercel.app/restore-stock/${item.id}`,
+      {
+        quantity: item.billQuantity,
+      },
+    );
 
     const updatedItems = [...billItems];
 
@@ -163,9 +171,12 @@ const CreateBill = () => {
       return;
     }
 
-    await axios.put(`http://localhost:5000/update-stock/${item.id}`, {
-      quantity: 1,
-    });
+    await axios.put(
+      `https://billing-backend-sigma.vercel.app/update-stock/${item.id}`,
+      {
+        quantity: 1,
+      },
+    );
 
     item.billQuantity += 1;
 
@@ -191,9 +202,12 @@ const CreateBill = () => {
       return;
     }
 
-    await axios.put(`http://localhost:5000/restore-stock/${item.id}`, {
-      quantity: 1,
-    });
+    await axios.put(
+      `https://billing-backend-sigma.vercel.app/restore-stock/${item.id}`,
+      {
+        quantity: 1,
+      },
+    );
 
     item.billQuantity -= 1;
 
@@ -260,21 +274,23 @@ const CreateBill = () => {
       customerName: customerName,
       customerPhone: customerPhone,
       finalTotal: finalTotal,
-      billDate: new Date().toLocaleDateString(),
+      billDate: new Date().toISOString().split('T')[0],
       items: billItems,
     };
 
     try {
-      await axios.post("http://localhost:5000/save-bill", billData);
+      await axios.post(
+        "https://billing-backend-sigma.vercel.app/save-bill",
+        billData,
+      );
 
       toast.success("Bill Saved Successfully ✅");
 
       setBillItems([]);
-
     } catch (error) {
       toast.error("Failed to Save Bill ❌");
     }
-};
+  };
   // =========================================
   // DOWNLOAD PDF
   // =========================================

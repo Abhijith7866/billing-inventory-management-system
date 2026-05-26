@@ -76,9 +76,13 @@ const Dashboard = () => {
     try {
       setLoading(true);
 
-      const productResponse = await axios.get("http://localhost:5000/products");
+      const productResponse = await axios.get(
+        "https://billing-backend-sigma.vercel.app/products",
+      );
 
-      const billResponse = await axios.get("http://localhost:5000/bills");
+      const billResponse = await axios.get(
+        "https://billing-backend-sigma.vercel.app/bills",
+      );
 
       setProducts(productResponse.data);
 
@@ -99,7 +103,7 @@ const Dashboard = () => {
   const fetchCategoryAnalytics = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/category-analytics",
+        "https://billing-backend-sigma.vercel.app/category-analytics",
       );
 
       setCategoryData(response.data);
@@ -114,7 +118,9 @@ const Dashboard = () => {
 
   const fetchMonthlySales = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/monthly-sales");
+      const response = await axios.get(
+        "https://billing-backend-sigma.vercel.app/monthly-sales",
+      );
 
       setMonthlySales(response.data);
     } catch (error) {
@@ -128,7 +134,9 @@ const Dashboard = () => {
 
   const fetchTopProducts = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/top-products");
+      const response = await axios.get(
+        "https://billing-backend-sigma.vercel.app/top-products",
+      );
 
       setTopProducts(response.data);
     } catch (error) {

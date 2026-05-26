@@ -9,7 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./ViewProducts.css";
 
 function ViewProducts() {
-  const API = "http://localhost:5000";
+  const API = "https://billing-backend-sigma.vercel.app";
 
   const [products, setProducts] = useState([]);
 

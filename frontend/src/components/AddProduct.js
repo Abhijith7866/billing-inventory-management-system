@@ -46,7 +46,7 @@ const AddProduct = () => {
     try {
       setLoading(true);
 
-      await axios.post("http://localhost:5000/add-product", {
+      await axios.post("https://billing-backend-sigma.vercel.app/add-product", {
         product_name: productName,
         category: category,
         price: price,
