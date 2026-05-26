@@ -1,0 +1,619 @@
+/* ============================= */
+/* RESET */
+/* ============================= */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ============================= */
+/* VARIABLES */
+/* ============================= */
+
+:root {
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --secondary: #8b5cf6;
+  --danger: #ef4444;
+  --success: #22c55e;
+  --text: #1e293b;
+  --gray: #64748b;
+  --light: #f8fafc;
+  --white: #ffffff;
+  --border: #e2e8f0;
+}
+
+/* ============================= */
+/* BODY */
+/* ============================= */
+
+body {
+  font-family: "Inter", "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* ============================= */
+/* APP WRAPPER */
+/* ============================= */
+
+.app-wrapper {
+  min-height: 100vh;
+}
+
+/* ============================= */
+/* LOGIN PAGE */
+/* ============================= */
+
+.login-page {
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(99, 102, 241, 0.35),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(139, 92, 246, 0.35),
+      transparent 35%
+    ),
+    #0f172a;
+}
+
+/* ============================= */
+/* LOGIN CARD */
+/* ============================= */
+
+.login-card {
+  width: 100%;
+  max-width: 430px;
+
+  padding: 42px;
+
+  border-radius: 24px;
+
+  background: rgba(255, 255, 255, 0.1);
+
+  backdrop-filter: blur(16px);
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+
+  animation: fadeUp 0.6s ease;
+}
+
+/* ============================= */
+/* BRAND */
+/* ============================= */
+
+.login-brand {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.brand-icon {
+  font-size: 50px;
+  margin-bottom: 12px;
+}
+
+.login-brand h1 {
+  color: white;
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.login-brand p {
+  margin-top: 6px;
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+/* ============================= */
+/* INPUT GROUP */
+/* ============================= */
+
+.input-group {
+  margin-bottom: 18px;
+}
+
+.input-group label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #e2e8f0;
+
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ============================= */
+/* INPUT */
+/* ============================= */
+
+.login-input {
+  width: 100%;
+
+  padding: 14px 16px;
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  background: rgba(255, 255, 255, 0.92);  /* ✅ more white = readable */
+
+  color: #1e293b;                          /* ✅ dark text — only once */
+
+  font-size: 14px;
+
+  outline: none;
+
+  transition: all 0.25s ease;
+}
+
+.login-input::placeholder {
+  color: #94a3b8;   /* ✅ gray placeholder */
+}
+
+.login-input:focus {
+  border-color: #818cf8;
+  box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.2);
+  background: rgba(255, 255, 255, 0.98);  /* ✅ fully white on focus */
+}
+
+.login-input::placeholder {
+  color: #cbd5e1;
+}
+
+.login-input:focus {
+  border-color: #818cf8;
+
+  box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.2);
+}
+
+/* ============================= */
+/* BUTTONS */
+/* ============================= */
+
+.login-button {
+  width: 100%;
+
+  padding: 14px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+
+  color: white;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  margin-top: 10px;
+  margin-bottom: 12px;
+
+  transition: all 0.25s ease;
+}
+
+.login-button:hover {
+  transform: translateY(-2px);
+
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4);
+}
+
+/* ✅ NEW — replace with this */
+.register-button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Poppins", sans-serif;
+}
+
+.register-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(99, 102, 241, 0.3);
+}
+
+.register-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+/* ============================= */
+/* DASHBOARD LAYOUT */
+/* ============================= */
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ============================= */
+/* SIDEBAR */
+/* ============================= */
+
+.sidebar {
+  width: 250px;
+
+  background: #0f172a;
+
+  position: fixed;
+
+  top: 0;
+  left: 0;
+
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sidebar-title {
+  padding: 28px 24px;
+
+  color: white;
+
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.sidebar-title span {
+  color: var(--primary);
+}
+
+.sidebar-nav {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 10px;
+
+  gap: 8px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 13px 16px;
+
+  border-radius: 12px;
+
+  text-decoration: none;
+
+  color: #cbd5e1;
+
+  font-size: 15px;
+  font-weight: 500;
+
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+
+  color: white;
+}
+
+.nav-link.active {
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.25),
+    rgba(139, 92, 246, 0.25)
+  );
+
+  color: white;
+}
+
+/* ============================= */
+/* SIDEBAR USER */
+/* ============================= */
+
+.sidebar-bottom {
+  padding: 18px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 12px;
+}
+
+.user-avatar {
+  width: 42px;
+  height: 42px;
+
+  border-radius: 50%;
+
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: white;
+
+  font-weight: 700;
+}
+
+.user-name {
+  color: white;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.logout-btn {
+  width: 100%;
+
+  padding: 12px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background: rgba(239, 68, 68, 0.12);
+
+  color: #f87171;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* ============================= */
+/* MAIN CONTENT */
+/* ============================= */
+
+.main-content {
+  margin-left: 250px;
+
+  flex: 1;
+}
+
+/* ============================= */
+/* PAGE HEADER */
+/* ============================= */
+
+.page-header {
+  background: rgba(255, 255, 255, 0.75);
+
+  backdrop-filter: blur(10px);
+
+  padding: 24px 32px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.page-header h1 {
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.page-header p {
+  margin-top: 4px;
+
+  color: var(--gray);
+
+  font-size: 14px;
+}
+
+/* ============================= */
+/* PAGE BODY */
+/* ============================= */
+
+.page-body {
+  padding: 28px;
+}
+
+/* ============================= */
+/* CARDS */
+/* ============================= */
+
+.card {
+  background: white;
+
+  border-radius: 18px;
+
+  padding: 24px;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+
+  margin-bottom: 24px;
+}
+
+/* ============================= */
+/* TABLE */
+/* ============================= */
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background: #f8fafc;
+
+  padding: 14px;
+
+  text-align: left;
+
+  font-size: 13px;
+
+  color: var(--gray);
+
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+  padding: 14px;
+
+  border-bottom: 1px solid var(--border);
+}
+
+tr:hover td {
+  background: #f8fafc;
+}
+
+/* ============================= */
+/* ANIMATION */
+/* ============================= */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================= */
+/* MOBILE */
+/* ============================= */
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+
+  .page-body {
+    padding: 18px;
+  }
+
+  .login-card {
+    padding: 30px;
+  }
+}
+/* ============================= */
+/* SIDEBAR MENU LABEL */
+/* ============================= */
+
+.sidebar-menu-label {
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  padding: 28px 24px 12px;
+}
+
+/* ============================= */
+/* SIDEBAR LINK (matches your .nav-link but with border) */
+/* ============================= */
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 18px;
+  border-radius: 12px;
+  border: 1px solid #2e2e4a;
+  color: #e2e8f0;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background 0.2s, border-color 0.2s;
+  background: transparent;
+}
+
+.sidebar-link:hover {
+  background: #2e2e4a;
+  border-color: #3e3e5e;
+}
+
+.sidebar-link.active {
+  background: #2e2e4a;
+  border-color: #3e3e5e;
+}
+
+/* ============================= */
+/* LOGOUT BUTTON */
+/* ============================= */
+
+.sidebar-logout {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 18px;
+  border-radius: 12px;
+  border: 1px solid #3e2020;
+  background: transparent;
+  color: #f87171;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.sidebar-logout:hover {
+  background: #2a1515;
+  border-color: #f87171;
+}
+
+/* ============================= */
+/* FULL WIDTH (login/register) */
+/* ============================= */
+
+.full-content {
+  flex: 1;
+}
+
+/* ============================= */
+/* DARK BACKGROUND FOR MAIN AREA */
+/* ============================= */
+
+.main-content {
+  background: #0f0f1a;
+}

@@ -1,0 +1,475 @@
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(135deg, #0f172a, #111827, #1e1b4b);
+}
+
+/* MAIN CONTAINER */
+
+.create-bills-container {
+  min-height: 100vh;
+  padding: 40px;
+  margin-left: 220px;
+  background: linear-gradient(135deg, #0f172a, #111827, #1e1b4b);
+  box-sizing: border-box;
+}
+
+/* TITLE */
+
+
+.create-bills-title {
+  text-align: center;
+  font-size: 48px;
+  font-weight: bold;
+  margin-bottom: 40px;
+  margin-left: -220px;
+  color: #60a5fa; /* matches the section titles like "Customer Details" */
+}
+
+/* SECTION TITLE */
+
+.section-title {
+  color: #60a5fa;
+  margin-bottom: 20px;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+/* COMMON CARD */
+
+.bill-section {
+  background: rgba(30, 41, 59, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 30px;
+  margin-bottom: 35px;
+  box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* INPUT GROUP WITH ICON */
+
+.input-group {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #60a5fa;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+/* INPUT */
+
+.quantity-input {
+  width: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid #334155;
+  background: #0b132b;
+  color: white;
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
+  transition: 0.3s;
+  appearance: none;
+}
+
+.quantity-input.with-icon {
+  padding-left: 50px; /* icon-left(18) + icon-width(18) + gap(14) */
+}
+
+.quantity-input::placeholder {
+  color: #94a3b8;
+}
+
+.quantity-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0px 0px 12px rgba(59, 130, 246, 0.35);
+}
+
+/* SELECT ARROW */
+
+select.quantity-input {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+}
+
+select.quantity-input option {
+  background: #0b132b;
+  color: white;
+}
+
+/* PRODUCT GRID */
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+/* PRODUCT CARD */
+
+.product-card {
+  background: rgba(30, 41, 59, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 24px;
+  padding: 24px;
+  transition: 0.3s;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0px 14px 35px rgba(37, 99, 235, 0.25);
+}
+
+/* PRODUCT NAME */
+
+.product-name {
+  color: white;
+  font-size: 22px;
+  margin-bottom: 14px;
+  margin-top: 0;
+   text-transform: capitalize;
+}
+
+/* PRODUCT INFO */
+
+.product-info {
+  color: #cbd5e1;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.info-label {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* STOCK LABELS */
+
+.low-stock {
+  background: rgba(245, 158, 11, 0.15);
+  color: #facc15;
+  padding: 8px 14px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.out-stock {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  padding: 8px 14px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* BUTTON */
+
+.add-bill-button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #2563eb, #7c3aed);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 14px;
+  box-shadow: 0px 8px 25px rgba(37, 99, 235, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-bill-button:hover {
+  transform: scale(1.02);
+  opacity: 0.95;
+}
+
+.add-bill-button:disabled {
+  background: #64748b;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* BILL ITEM */
+
+.bill-item {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.bill-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.bill-item-header h3 {
+  color: white;
+  margin: 0;
+  font-size: 18px;
+}
+
+.bill-item-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.bill-item-details p {
+  color: #cbd5e1;
+  margin: 0;
+  font-size: 14px;
+}
+
+/* EMPTY STATE */
+
+.empty-bill {
+  color: #64748b;
+  text-align: center;
+  padding: 30px 0;
+  font-size: 15px;
+}
+
+/* DELETE BUTTON */
+
+.delete-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(220, 38, 38, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.delete-button:hover {
+  background: rgba(220, 38, 38, 0.3);
+}
+
+/* INVOICE HEADER */
+
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.shop-name {
+  color: #60a5fa;
+  font-size: 32px;
+  font-weight: bold;
+  margin: 0 0 6px 0;
+}
+
+.invoice-header p {
+  color: #94a3b8;
+  margin: 0;
+  font-size: 14px;
+}
+
+.invoice-number {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: bold;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  font-size: 15px;
+}
+
+/* CUSTOMER INFO */
+
+.invoice-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.invoice-card {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 16px;
+  padding: 18px 20px;
+}
+
+.invoice-card p {
+  color: #cbd5e1;
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.invoice-card p strong {
+  color: #94a3b8;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* SUMMARY */
+
+.summary-section {
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  border-radius: 22px;
+  padding: 28px;
+  margin-top: 30px;
+}
+
+.summary-section h2 {
+  color: #cbd5e1;
+  margin: 10px 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.final-amount {
+  color: #22c55e;
+  font-size: 36px;
+  margin-top: 16px;
+  margin-bottom: 0;
+}
+
+/* LINE */
+
+hr {
+  border: none;
+  border-top: 1px solid #1e293b;
+  margin: 28px 0;
+}
+
+/* ACTION BUTTONS */
+
+.bill-action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.print-btn {
+  background: linear-gradient(90deg, #0f766e, #0369a1);
+  margin-top: 0;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+  .create-bills-container {
+    margin-left: 0;
+    padding: 20px;
+  }
+
+  .create-bills-title {
+    font-size: 34px;
+  }
+
+  .bill-section {
+    padding: 20px;
+  }
+
+  .product-name {
+    font-size: 20px;
+    
+  }
+
+  .bill-action-buttons {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================
+   QUANTITY CONTROLS
+========================================= */
+
+.quantity-controls {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  margin-top: 10px;
+}
+
+.qty-btn {
+
+  width: 34px;
+
+  height: 34px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #7c3aed
+  );
+
+  color: white;
+
+  font-size: 18px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.qty-btn:hover {
+
+  transform: scale(1.08);
+}
+
+.bill-quantity {
+
+  font-size: 18px;
+
+  font-weight: 700;
+
+  color: #22c55e;
+
+  min-width: 20px;
+
+  text-align: center;
+}

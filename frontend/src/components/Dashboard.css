@@ -1,0 +1,393 @@
+.dashboard-container {
+  min-height: 100vh;
+  padding: 40px;
+  background: #0f0f1a;
+}
+
+/* DASHBOARD HEADER */
+.dashboard-header {
+  margin-bottom: 32px;
+}
+
+.dashboard-header h1 {
+  color: #f8fafc;
+  font-size: 46px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  line-height: 1.1;
+}
+
+.dashboard-subtitle {
+  color: #cbd5e1;
+  margin-top: 10px;
+  font-size: 16px;
+  letter-spacing: 0.3px;
+  font-weight: 400;
+}
+
+/* CARDS */
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 22px;
+  margin-bottom: 32px;
+}
+
+.dashboard-card {
+  background: #1e1e30;
+  padding: 30px;
+  border-radius: 18px;
+  border: 1px solid #2e2e4a;
+  transition: 0.3s;
+  text-align: left;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  border-color: #4f6ef7;
+  background: #24243a;
+  box-shadow: 0 10px 25px rgba(79, 110, 247, 0.18);
+}
+
+/* CARD TOP */
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+/* CARD ICON */
+.card-icon {
+  font-size: 26px;
+  color: #818cf8;
+  opacity: 0.95;
+}
+
+.dashboard-card h2 {
+  color: #94a3b8;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.dashboard-card p {
+  color: #4f6ef7;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+/* CHART */
+.chart-section {
+  background: #1e1e30;
+  padding: 30px;
+  border-radius: 18px;
+  border: 1px solid #2e2e4a;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.chart-section h2 {
+  margin-bottom: 25px;
+  color: #f8fafc;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+/* LOADING */
+.loading-screen {
+  min-height: 100vh;
+  background: #0f0f1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.loading-screen p {
+  color: #94a3b8;
+  font-size: 16px;
+}
+
+/* SPINNER */
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #2e2e4a;
+  border-top: 4px solid #4f6ef7;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* RECENT BILLS */
+.recent-bills-section {
+  margin-top: 32px;
+  background: #1e1e30;
+  padding: 30px;
+  border-radius: 18px;
+  border: 1px solid #2e2e4a;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* ✅ BILLS HEADER — title and search side by side */
+.bills-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.bills-header h2 {
+  color: #f8fafc;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* ✅ SEARCH BOX */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #2e2e4a;
+  border: 1px solid #3e3e5e;
+  border-radius: 12px;
+  padding: 10px 16px;
+  width: 320px;
+  transition: 0.25s;
+}
+
+.search-box:focus-within {
+  border-color: #4f6ef7;
+  box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.15);
+}
+
+.search-icon {
+  color: #94a3b8;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f8fafc;
+  font-size: 14px;
+  font-family: "Poppins", sans-serif;
+  width: 100%;
+}
+
+.search-input::placeholder {
+  color: #64748b;
+}
+
+/* NO RESULTS */
+.no-results {
+  text-align: center;
+  color: #64748b;
+  padding: 40px;
+  font-size: 15px;
+}
+
+/* TABLE */
+.recent-bills-table {
+  width: 100%;
+  border-collapse: collapse;
+  user-select: none;
+}
+
+.recent-bills-table th {
+  text-align: left;
+  padding: 16px;
+  color: white;
+  border-bottom: 1px solid #2e2e4a;
+  font-size: 15px;
+  background: #2563eb;
+}
+
+/* ✅ Force dark background on all cells */
+.recent-bills-table td {
+  padding: 16px;
+  color: #f8fafc;
+  border-bottom: 1px solid #2e2e4a;
+  font-size: 15px;
+  background: #1e1e30 !important;
+}
+
+.recent-bills-table tbody tr {
+  transition: 0.2s;
+}
+
+/* ✅ Hover targets td directly — fixes white row issue */
+.recent-bills-table tbody tr:hover td {
+  background: #24243a !important;
+}
+
+.recent-bills-table *::selection {
+  background: #4f6ef7;
+  color: white;
+}
+
+/* LOW STOCK */
+.low-stock-section {
+  margin-top: 32px;
+  background: #1e1e30;
+  padding: 30px;
+  border-radius: 18px;
+  border: 1px solid #2e2e4a;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.low-stock-section h2 {
+  color: #f8fafc;
+  margin-bottom: 24px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.low-stock-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #2e2e4a;
+  color: #f8fafc;
+  font-size: 15px;
+}
+
+.stock-count {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.no-stock-alert {
+  color: #94a3b8;
+  font-size: 15px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 20px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 36px;
+  }
+
+  .dashboard-subtitle {
+    font-size: 14px;
+  }
+
+  .dashboard-card {
+    padding: 24px;
+  }
+
+  .dashboard-card p {
+    font-size: 28px;
+  }
+
+  .recent-bills-section {
+    overflow-x: auto;
+  }
+
+  .recent-bills-table {
+    min-width: 600px;
+  }
+
+  .bills-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+}
+/* DOWNLOAD BUTTON */
+
+.download-btn {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  background: #2563eb;
+
+  color: white;
+
+  border: none;
+
+  padding: 10px 14px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  font-size: 14px;
+
+  transition: 0.25s;
+}
+
+.download-btn:hover {
+  background: #1d4ed8;
+
+  transform: translateY(-2px);
+}
+@media print {
+  .qty-btn,
+  .remove-btn,
+  .save-bill-btn,
+  .print-bill-btn {
+    display: none !important;
+  }
+}
+.chart-section {
+  background: rgba(20, 20, 35, 0.95);
+
+  padding: 30px;
+
+  border-radius: 24px;
+
+  margin-top: 30px;
+
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.25);
+
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.chart-section h2 {
+  color: white;
+
+  margin-bottom: 25px;
+
+  font-size: 28px;
+
+  font-weight: 700;
+}
+.invoice-link {
+  color: #60a5fa;
+
+  text-decoration: none;
+
+  font-weight: 600;
+}
+
+.invoice-link:hover {
+  text-decoration: underline;
+}
