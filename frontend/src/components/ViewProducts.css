@@ -60,11 +60,13 @@ body {
 .view-products-title {
   text-align: center;
 
-  font-size: 44px;
+  font-size: 40px;
 
   font-weight: 700;
 
   margin-bottom: 30px;
+
+  color:  #60a5fa;
 }
 
 /* =========================================
