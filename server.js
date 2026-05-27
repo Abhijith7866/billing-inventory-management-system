@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
@@ -10,13 +11,15 @@ app.use(cors());
 app.use(express.json());
 
 const db = mysql.createConnection({
-  host: "localhost",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT,
 
-  user: "root",
-
-  password: "abhi7866",
-
-  database: "billingsoftwares",
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 db.connect((err) => {
   if (err) {
@@ -40,44 +43,31 @@ app.post("/login", async (req, res) => {
         .json({ error: "Username and password are required" });
     }
 
-    const sql = "SELECT * FROM users WHERE username = ?";
+    const [results] = await db
+      .promise()
+      .query("SELECT * FROM users WHERE username = ?", [username]);
 
-    db.query(sql, [username], async (err, results) => {
-      if (err) {
-        console.log("❌ Login DB error:", err);
-        return res.status(500).json({ error: "Database error" });
-      }
+    if (results.length === 0) {
+      return res.status(401).json({ error: "Wrong username or password" });
+    }
 
-      // ✅ User not found
-      if (results.length === 0) {
-        return res.status(401).json({ error: "Wrong username or password" });
-      }
+    const user = results[0];
+    const isValid = await bcrypt.compare(password, user.password);
 
-      const user = results[0];
+    if (!isValid) {
+      return res.status(401).json({ error: "Wrong username or password" });
+    }
 
-      // ✅ Check password
-      const isValid = await bcrypt.compare(password, user.password);
+    const token = jwt.sign(
+      { id: user.id, username: user.username },
+      process.env.JWT_SECRET || "secret123",
+      { expiresIn: "7d" },
+    );
 
-      if (!isValid) {
-        return res.status(401).json({ error: "Wrong username or password" });
-      }
-
-      // ✅ Create token
-      const token = jwt.sign(
-        { id: user.id, username: user.username },
-        process.env.JWT_SECRET || "secret123",
-        { expiresIn: "7d" },
-      );
-
-      // ✅ Send token back
-      res.json({
-        message: "Login successful",
-        token,
-        user: {
-          id: user.id,
-          username: user.username,
-        },
-      });
+    res.json({
+      message: "Login successful",
+      token,
+      user: { id: user.id, username: user.username },
     });
   } catch (err) {
     console.log("❌ Login crash:", err);
@@ -507,6 +497,8 @@ app.get("/bill-details/:id", (req, res) => {
   });
 });
 
-app.listen(5000, () => {
-  console.log("Server Started");
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server Started on ${PORT}`);
 });
