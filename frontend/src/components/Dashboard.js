@@ -171,7 +171,7 @@ const Dashboard = () => {
   // =========================================
 
   const totalRevenue = bills.reduce(
-    (total, bill) => total + bill.final_total,
+    (total, bill) => total + Number(bill.final_total),
 
     0,
   );

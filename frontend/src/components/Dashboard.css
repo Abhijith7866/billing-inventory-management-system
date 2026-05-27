@@ -1,7 +1,9 @@
 .dashboard-container {
   min-height: 100vh;
-  padding: 40px;
+  padding: 30px 30px 30px 15px;
   background: #0f0f1a;
+  max-width: 1400px;
+  margin: auto;
 }
 
 /* DASHBOARD HEADER */
