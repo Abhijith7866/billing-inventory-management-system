@@ -9,7 +9,7 @@ body {
 .create-bills-container {
   min-height: 100vh;
   padding: 40px;
-  margin-left: 220px;
+  margin-left: 160px;
   background: linear-gradient(135deg, #0f172a, #111827, #1e1b4b);
   box-sizing: border-box;
 }
@@ -22,7 +22,7 @@ body {
   font-size: 48px;
   font-weight: bold;
   margin-bottom: 40px;
-  margin-left: -220px;
+  margin-left: -160px;
   color: #60a5fa; /* matches the section titles like "Customer Details" */
 }
 
