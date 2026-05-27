@@ -16,7 +16,6 @@ body {
 
 /* TITLE */
 
-
 .create-bills-title {
   text-align: center;
   font-size: 43px;
@@ -141,7 +140,7 @@ select.quantity-input option {
   font-size: 22px;
   margin-bottom: 14px;
   margin-top: 0;
-   text-transform: capitalize;
+  text-transform: capitalize;
 }
 
 /* PRODUCT INFO */
@@ -406,7 +405,6 @@ hr {
 
   .product-name {
     font-size: 20px;
-    
   }
 
   .bill-action-buttons {
@@ -419,7 +417,6 @@ hr {
 ========================================= */
 
 .quantity-controls {
-
   display: flex;
 
   align-items: center;
@@ -430,7 +427,6 @@ hr {
 }
 
 .qty-btn {
-
   width: 34px;
 
   height: 34px;
@@ -439,11 +435,7 @@ hr {
 
   border-radius: 10px;
 
-  background: linear-gradient(
-    135deg,
-    #2563eb,
-    #7c3aed
-  );
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
 
   color: white;
 
@@ -457,12 +449,10 @@ hr {
 }
 
 .qty-btn:hover {
-
   transform: scale(1.08);
 }
 
 .bill-quantity {
-
   font-size: 18px;
 
   font-weight: 700;
@@ -472,4 +462,68 @@ hr {
   min-width: 20px;
 
   text-align: center;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-card {
+  background: #1e293b;
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  color: white;
+}
+
+.modal-card h1 {
+  color: #60a5fa;
+  margin-bottom: 10px;
+}
+
+.modal-card h2 {
+  margin-bottom: 20px;
+}
+
+.recommend-card {
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.recommend-card h3 {
+  margin-bottom: 8px;
+}
+
+.reason {
+  color: #60a5fa;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+.modal-card button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  background: linear-gradient(90deg, #2563eb, #7c3aed);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 15px;
 }
