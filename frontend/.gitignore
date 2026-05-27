@@ -1,3 +1,4 @@
+<<<<<<< HEAD:frontend/.gitignore
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
@@ -23,3 +24,7 @@ yarn-debug.log*
 yarn-error.log*
 
 .vercel
+=======
+.vercel
+.env*
+>>>>>>> 2a88b1ff268859e1c4a988d6f5bc94877e745eda:.gitignore
