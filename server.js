@@ -1,14 +1,18 @@
+require("dotenv").config();
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const app = express();
+const fetch = require("node-fetch");
 
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'https://billing-frontend-rho-amber.vercel.app'],
+  credentials: true
+}));
 
 app.use(express.json());
-
 
 const db = mysql.createPool({
   host: process.env.DB_HOST,
@@ -16,7 +20,7 @@ const db = mysql.createPool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   port: process.env.DB_PORT,
-  ssl: { rejectUnauthorized: false },  // ← add this
+  ssl: { rejectUnauthorized: false }, // ← add this
   waitForConnections: true,
   connectionLimit: 10,
 });
@@ -509,10 +513,104 @@ app.get("/", (req, res) => {
   res.send("Backend is running successfully 🚀");
 });
 
+// AI Reorder Recommendation
+app.get("/api/recommendations/:phone", async (req, res) => {
+  const { phone } = req.params;
 
+  try {
+    db.query(
+      `SELECT b.invoice_number, b.bill_date, b.final_total,
+              bi.product_name, bi.category, bi.quantity, bi.price
+       FROM bills b
+       JOIN bill_items bi ON b.id = bi.bill_id
+       WHERE b.customer_phone = ?
+       ORDER BY b.bill_date DESC
+       LIMIT 20`,
+      [phone],
+      async (err, bills) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ error: "Database error" });
+        }
+
+        console.log("Phone:", phone);
+        console.log("Bills found:", bills.length);
+
+        if (bills.length === 0) {
+          return res.json({ isNewCustomer: true, recommendations: [] });
+        }
+
+        console.log('GROQ KEY:', process.env.GROQ_API_KEY);
+
+        try {
+          const response = await fetch(
+            "https://api.groq.com/openai/v1/chat/completions",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+              },
+              body: JSON.stringify({
+                model: "llama-3.3-70b-versatile",
+                messages: [
+                  {
+                    role: "system",
+                    content:
+                      "You are a smart billing assistant. Reply ONLY in valid JSON, no extra text.",
+                  },
+                  {
+                    role: "user",
+                    content: `Based on this customer's purchase history, suggest reorder recommendations.
+            
+Purchase History: ${JSON.stringify(bills)}
+
+Reply ONLY in this JSON format:
+{
+  "customerName": "name from history",
+  "message": "personalized greeting message",
+  "recommendations": [
+    {
+      "product_name": "product name",
+      "category": "category",
+      "last_price": 00.00,
+      "last_quantity": 0,
+      "reason": "short reason why they should reorder"
+    }
+  ]
+}`,
+                  },
+                ],
+              }),
+            },
+          );
+
+          const data = await response.json();
+          console.log('Groq response:', JSON.stringify(data));
+          const text = data.choices[0].message.content;
+          const clean = text.replace(/```json|```/g, "").trim();
+          const parsed = JSON.parse(clean);
+          res.json({ isNewCustomer: false, ...parsed });
+        } catch (aiErr) {
+          console.error(aiErr);
+          res.status(500).json({ error: "AI error" });
+        }
+      },
+    );
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to get recommendations" });
+  }
+});
 
 // ✅ Replace with this
+// if (require.main === module) {
+//   app.listen(3000);
+// }
+// module.exports = app;
+
 if (require.main === module) {
-  app.listen(3000);
+  app.listen(5000, () => {
+    console.log("Server running on port 3000");
+  });
 }
-module.exports = app;
