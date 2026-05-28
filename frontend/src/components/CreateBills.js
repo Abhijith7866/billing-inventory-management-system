@@ -36,6 +36,7 @@ const CreateBill = () => {
 
   const [recommendations, setRecommendations] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
+  const [aiCustomer, setAiCustomer] = useState(null);
 
   const invoiceNumber = "INV-" + Math.floor(Math.random() * 10000);
 
@@ -65,21 +66,18 @@ const CreateBill = () => {
     if (phone.length < 10) return;
 
     try {
-      const url = `${API}/reorder-recommendations/${phone}`;
+      const res = await axios.get(`${API}/reorder-recommendations/${phone}`);
 
-      console.log("API URL:", url);
+      console.log("AI Response:", res.data);
 
-      const res = await axios.get(url);
-
-      console.log("API RESPONSE:", res.data);
-
-      if (res.data.length > 0) {
-        setRecommendations(res.data);
-
+      // New response format: { isReturning, customer, suggestions }
+      if (res.data.isReturning && res.data.suggestions.length > 0) {
+        setAiCustomer(res.data.customer); // { name, phone }
+        setRecommendations(res.data.suggestions); // array of items
         setShowPopup(true);
       }
     } catch (err) {
-      console.log("FULL ERROR:", err);
+      console.log("AI lookup error:", err);
     }
   };
 
@@ -374,6 +372,16 @@ const CreateBill = () => {
     pdf.save(`${invoiceNumber}.pdf`);
   };
 
+  const formatLastBought = (dateStr) => {
+  if (!dateStr) return "previously";
+  const days = Math.floor((Date.now() - new Date(dateStr)) / 86400000);
+  if (days === 0) return "today";
+  if (days === 1) return "yesterday";
+  if (days < 7)  return `${days} days ago`;
+  if (days < 30) return `${Math.floor(days / 7)} week(s) ago`;
+  return `${Math.floor(days / 30)} month(s) ago`;
+};
+
   return (
     <>
       {/* PDF TEMPLATE */}
@@ -400,40 +408,123 @@ const CreateBill = () => {
 
       {/* AI POPUP */}
 
-      {showPopup && recommendations.length > 0 && (
+      {showPopup && recommendations.length > 0 && aiCustomer && (
         <div className="modal-overlay">
           <div className="modal-card">
-            <h1>👋 Welcome back!</h1>
+            {/* Header */}
+            <div
+              style={{
+                background: "#EAF3DE",
+                borderRadius: "12px 12px 0 0",
+                padding: "16px 18px",
+                display: "flex",
+                gap: 12,
+                alignItems: "flex-start",
+                margin: "-20px -20px 16px -20px",
+              }}
+            >
+              <div
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: "50%",
+                  background: "#3B6D11",
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 16,
+                  flexShrink: 0,
+                }}
+              >
+                ✦
+              </div>
+              <div>
+                <h2
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 700,
+                    color: "#173404",
+                    margin: 0,
+                  }}
+                >
+                  Welcome back, {aiCustomer.name.split(" ")[0]}! 👋
+                </h2>
+                <p
+                  style={{ fontSize: 12, color: "#3B6D11", margin: "3px 0 0" }}
+                >
+                  You've bought these before — add them again?
+                </p>
+              </div>
+            </div>
 
-            <h2>📦 Reorder Recommendations</h2>
-
+            {/* Suggested Items */}
             {recommendations.map((item, index) => (
               <div className="recommend-card" key={index}>
-                <h3>{item.product_name}</h3>
-
-                <p>Category: {item.category}</p>
-
-                <p>
-                  ₹{item.price} | Qty: {item.quantity}
-                </p>
-
-                <p className="reason">💡 {item.reason}</p>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <div>
+                    <h3 style={{ margin: "0 0 4px" }}>{item.product_name}</h3>
+                    <p style={{ margin: 0, fontSize: 12, color: "#888" }}>
+                      {item.category} · Bought {item.total_bought}× total
+                    </p>
+                    <p
+                      style={{ margin: "3px 0 0", fontSize: 12, color: "#aaa" }}
+                    >
+                      Last purchased: {formatLastBought(item.last_bought)}
+                    </p>
+                  </div>
+                  <p style={{ fontWeight: 700, fontSize: 14, margin: 0 }}>
+                    ₹{parseFloat(item.price).toLocaleString("en-IN")}
+                  </p>
+                </div>
                 <button
                   className="recommend-btn"
                   onClick={() => addRecommendedItem(item)}
+                  style={{ marginTop: 10, width: "100%" }}
                 >
-                  Add Again
+                  + Add to Bill
                 </button>
               </div>
             ))}
 
-            <button onClick={() => setShowPopup(false)}>
+            {/* Footer */}
+            <button
+              onClick={() => setShowPopup(false)}
+              style={{
+                width: "100%",
+                marginTop: 8,
+                padding: "11px 0",
+                background: "#1E3A1E",
+                color: "#fff",
+                border: "none",
+                borderRadius: 9,
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
               Continue Billing
             </button>
+            <p
+              style={{
+                textAlign: "center",
+                fontSize: 11,
+                color: "#bbb",
+                marginTop: 8,
+                marginBottom: 0,
+              }}
+            >
+              AI suggestion · based on purchase history
+            </p>
           </div>
         </div>
       )}
-
       {/* MAIN PAGE */}
 
       <div className="create-bills-container">

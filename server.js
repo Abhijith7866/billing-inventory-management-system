@@ -431,55 +431,50 @@ app.get("/bill-details/:id", (req, res) => {
 
 /* AI REORDER RECOMMENDATIONS */
 
-app.get("/reorder-recommendations/:phone", (req, res) => {
+/* AI REORDER RECOMMENDATIONS */
+
+app.get("/reorder-recommendations/:phone", async (req, res) => {
   const phone = req.params.phone;
 
-  const sql = `
-  
-    SELECT
-      bill_items.product_name,
-      bill_items.category,
-      bill_items.price,
-      bill_items.quantity,
-      bills.bill_date
-    
-    FROM bill_items
-    
-    JOIN bills
-    ON bill_items.bill_id = bills.id
-    
-    WHERE bills.customer_phone = ?
-    
-    ORDER BY bills.bill_date DESC
-    
-    LIMIT 5
-  
-  `;
+  try {
+    // Check if returning customer
+    const [bills] = await db
+      .promise()
+      .query(
+        `SELECT customer_name FROM bills WHERE customer_phone = ? LIMIT 1`,
+        [phone],
+      );
 
-  db.query(sql, [phone], (err, result) => {
-    if (err) {
-      return res.status(500).json({
-        message: "Database Error",
-      });
+    if (bills.length === 0) {
+      return res.json({ isReturning: false, customer: null, suggestions: [] });
     }
 
-    const recommendations = result.map((item) => {
-      let reason = "";
+    // Get their most frequently bought products
+    const [suggestions] = await db.promise().query(
+      `SELECT
+         bi.product_name,
+         bi.category,
+         bi.price,
+         SUM(bi.quantity)  AS total_bought,
+         MAX(b.bill_date)  AS last_bought
+       FROM bill_items bi
+       JOIN bills b ON bi.bill_id = b.id
+       WHERE b.customer_phone = ?
+       GROUP BY bi.product_name, bi.category, bi.price
+       ORDER BY total_bought DESC, last_bought DESC
+       LIMIT 5`,
+      [phone],
+    );
 
-      if (item.quantity >= 5) {
-        reason = "You purchased a large quantity recently.";
-      } else {
-        reason = "Previously purchased item recommended.";
-      }
-
-      return {
-        ...item,
-        reason,
-      };
+    res.json({
+      isReturning: true,
+      customer: { name: bills[0].customer_name, phone },
+      suggestions,
     });
-
-    res.json(recommendations);
-  });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Database Error" });
+  }
 });
 
 const PORT = process.env.PORT || 5000;
