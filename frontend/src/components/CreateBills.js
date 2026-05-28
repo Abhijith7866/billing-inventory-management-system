@@ -573,6 +573,7 @@ const CreateBill = () => {
               type="text"
               placeholder="Phone Number"
               value={customerPhone}
+              className="quantity-input with-icon"
               onChange={(e) => {
                 const val = e.target.value;
                 setCustomerPhone(val);
