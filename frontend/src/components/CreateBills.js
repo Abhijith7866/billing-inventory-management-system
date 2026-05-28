@@ -138,6 +138,7 @@ const CreateBill = () => {
     }
 
     toast.success("Recommended item added ✅");
+    setShowPopup(false);
 
     fetchProducts();
   };
@@ -453,7 +454,7 @@ const CreateBill = () => {
                     margin: 0,
                   }}
                 >
-                  Welcome back, {aiCustomer.name.split(" ")[0]}! 👋
+                  Welcome back, {aiCustomer?.name?.split(" ")[0] || "Customer"}! 👋
                 </h2>
                 <p
                   style={{ fontSize: 12, color: "#3B6D11", margin: "3px 0 0" }}
