@@ -30,6 +30,8 @@ const CreateBill = () => {
 
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  // Add this state near your other states
+  const [aiLoading, setAiLoading] = useState(false);
 
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
@@ -64,6 +66,7 @@ const CreateBill = () => {
 
   const fetchRecommendations = async (phone) => {
     if (phone.length < 10) return;
+    setAiLoading(true);
 
     try {
       const res = await axios.get(`${API}/reorder-recommendations/${phone}`);
@@ -78,6 +81,8 @@ const CreateBill = () => {
       }
     } catch (err) {
       console.log("AI lookup error:", err);
+    } finally {
+      setAiLoading(false); // 👈 hide spinner
     }
   };
 
@@ -373,14 +378,14 @@ const CreateBill = () => {
   };
 
   const formatLastBought = (dateStr) => {
-  if (!dateStr) return "previously";
-  const days = Math.floor((Date.now() - new Date(dateStr)) / 86400000);
-  if (days === 0) return "today";
-  if (days === 1) return "yesterday";
-  if (days < 7)  return `${days} days ago`;
-  if (days < 30) return `${Math.floor(days / 7)} week(s) ago`;
-  return `${Math.floor(days / 30)} month(s) ago`;
-};
+    if (!dateStr) return "previously";
+    const days = Math.floor((Date.now() - new Date(dateStr)) / 86400000);
+    if (days === 0) return "today";
+    if (days === 1) return "yesterday";
+    if (days < 7) return `${days} days ago`;
+    if (days < 30) return `${Math.floor(days / 7)} week(s) ago`;
+    return `${Math.floor(days / 30)} month(s) ago`;
+  };
 
   return (
     <>
@@ -568,11 +573,33 @@ const CreateBill = () => {
               type="text"
               placeholder="Phone Number"
               value={customerPhone}
-              onChange={(e) => setCustomerPhone(e.target.value)}
-              onBlur={() => fetchRecommendations(customerPhone)}
-              className="quantity-input with-icon"
+              onChange={(e) => {
+                const val = e.target.value;
+                setCustomerPhone(val);
+                if (val.length === 10) {
+                  fetchRecommendations(val); // 👈 fires instantly at 10 digits
+                }
+              }}
+              onBlur={() => {
+                if (customerPhone.length === 10 && !aiLoading) {
+                  fetchRecommendations(customerPhone);
+                }
+              }}
             />
           </div>
+          {/* Loading indicator — shows while AI is fetching */}
+          {aiLoading && (
+            <p
+              style={{
+                fontSize: 12,
+                color: "#3B6D11",
+                marginTop: 6,
+                marginLeft: 4,
+              }}
+            >
+              ✦ Checking purchase history...
+            </p>
+          )}
         </div>
 
         {/* SEARCH */}
