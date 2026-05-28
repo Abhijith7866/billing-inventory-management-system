@@ -82,6 +82,62 @@ const CreateBill = () => {
       console.log("FULL ERROR:", err);
     }
   };
+
+  const addRecommendedItem = async (recommendedItem) => {
+    const product = products.find(
+      (p) => p.product_name === recommendedItem.product_name,
+    );
+
+    if (!product) {
+      toast.error("Product not found");
+
+      return;
+    }
+
+    if (product.quantity <= 0) {
+      toast.warning("Product out of stock");
+
+      return;
+    }
+
+    const existingItem = billItems.find((item) => item.id === product.id);
+
+    await axios.put(`${API}/update-stock/${product.id}`, {
+      quantity: 1,
+    });
+
+    if (existingItem) {
+      const updatedBillItems = billItems.map((item) => {
+        if (item.id === product.id) {
+          const newQuantity = item.billQuantity + 1;
+
+          return {
+            ...item,
+            billQuantity: newQuantity,
+            total: item.price * newQuantity,
+          };
+        }
+
+        return item;
+      });
+
+      setBillItems(updatedBillItems);
+    } else {
+      const item = {
+        ...product,
+
+        billQuantity: 1,
+
+        total: product.price,
+      };
+
+      setBillItems([...billItems, item]);
+    }
+
+    toast.success("Recommended item added ✅");
+
+    fetchProducts();
+  };
   // =========================================
   // ADD TO BILL
   // =========================================
@@ -362,6 +418,12 @@ const CreateBill = () => {
                 </p>
 
                 <p className="reason">💡 {item.reason}</p>
+                <button
+                  className="recommend-btn"
+                  onClick={() => addRecommendedItem(item)}
+                >
+                  Add Again
+                </button>
               </div>
             ))}
 
