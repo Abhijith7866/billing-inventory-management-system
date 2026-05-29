@@ -117,7 +117,7 @@ const CreateBill = () => {
           return {
             ...item,
             billQuantity: newQuantity,
-            total: item.price * newQuantity,
+            total: Number(item.price) * newQuantity,
           };
         }
 
@@ -131,7 +131,7 @@ const CreateBill = () => {
 
         billQuantity: 1,
 
-        total: product.price,
+        total: Number(product.price),
       };
 
       setBillItems([...billItems, item]);
@@ -309,7 +309,10 @@ const CreateBill = () => {
   // TOTALS
   // =========================================
 
-  const subTotal = billItems.reduce((total, item) => total + item.total, 0);
+ const subTotal = billItems.reduce(
+  (total, item) => total + Number(item.total),
+  0
+);
 
   const gstPercentage = 18;
 
