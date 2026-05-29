@@ -30,7 +30,6 @@ const CreateBill = () => {
 
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
-  // Add this state near your other states
   const [aiLoading, setAiLoading] = useState(false);
 
   const [search, setSearch] = useState("");
@@ -40,7 +39,8 @@ const CreateBill = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [aiCustomer, setAiCustomer] = useState(null);
 
-  const invoiceNumber = "INV-" + Math.floor(Math.random() * 10000);
+  // ✅ Fix 3: invoiceNumber in useState so it doesn't regenerate on every render
+  const [invoiceNumber] = useState("INV-" + Math.floor(Math.random() * 10000));
 
   // =========================================
   // FETCH PRODUCTS
@@ -53,7 +53,6 @@ const CreateBill = () => {
   const fetchProducts = async () => {
     try {
       const response = await axios.get(`${API}/products`);
-
       setProducts(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.log(err);
@@ -73,16 +72,15 @@ const CreateBill = () => {
 
       console.log("AI Response:", res.data);
 
-      // New response format: { isReturning, customer, suggestions }
       if (res.data.isReturning && res.data.suggestions.length > 0) {
-        setAiCustomer(res.data.customer); // { name, phone }
-        setRecommendations(res.data.suggestions); // array of items
+        setAiCustomer(res.data.customer);
+        setRecommendations(res.data.suggestions);
         setShowPopup(true);
       }
     } catch (err) {
       console.log("AI lookup error:", err);
     } finally {
-      setAiLoading(false); // 👈 hide spinner
+      setAiLoading(false);
     }
   };
 
@@ -93,13 +91,11 @@ const CreateBill = () => {
 
     if (!product) {
       toast.error("Product not found");
-
       return;
     }
 
     if (product.quantity <= 0) {
       toast.warning("Product out of stock");
-
       return;
     }
 
@@ -113,14 +109,13 @@ const CreateBill = () => {
       const updatedBillItems = billItems.map((item) => {
         if (item.id === product.id) {
           const newQuantity = item.billQuantity + 1;
-
           return {
             ...item,
             billQuantity: newQuantity,
+            // ✅ Fix 1: Number() ensures price is numeric
             total: Number(item.price) * newQuantity,
           };
         }
-
         return item;
       });
 
@@ -128,9 +123,8 @@ const CreateBill = () => {
     } else {
       const item = {
         ...product,
-
         billQuantity: 1,
-
+        // ✅ Fix 1: Number() ensures price is numeric
         total: Number(product.price),
       };
 
@@ -142,6 +136,7 @@ const CreateBill = () => {
 
     fetchProducts();
   };
+
   // =========================================
   // ADD TO BILL
   // =========================================
@@ -151,13 +146,11 @@ const CreateBill = () => {
 
     if (!quantity || quantity <= 0) {
       toast.warning("Enter valid quantity");
-
       return;
     }
 
     if (quantity > product.quantity) {
       toast.warning("Not enough stock available");
-
       return;
     }
 
@@ -171,20 +164,20 @@ const CreateBill = () => {
       const updatedBillItems = billItems.map((item) => {
         if (item.id === product.id) {
           const newQuantity = item.billQuantity + quantity;
-
           return {
             ...item,
             billQuantity: newQuantity,
-            total: item.price * newQuantity,
+            // ✅ Fix 1: Number() ensures price is numeric
+            total: Number(item.price) * newQuantity,
           };
         }
-
         return item;
       });
 
       setBillItems(updatedBillItems);
     } else {
-      const total = product.price * quantity;
+      // ✅ Fix 1: Number() ensures price is numeric
+      const total = Number(product.price) * quantity;
 
       const item = {
         ...product,
@@ -215,9 +208,7 @@ const CreateBill = () => {
     });
 
     const updatedItems = [...billItems];
-
     updatedItems.splice(index, 1);
-
     setBillItems(updatedItems);
 
     fetchProducts();
@@ -229,14 +220,11 @@ const CreateBill = () => {
 
   const increaseQuantity = async (index) => {
     const updatedItems = [...billItems];
-
     const item = updatedItems[index];
-
     const product = products.find((p) => p.id === item.id);
 
     if (product.quantity <= 0) {
       toast.warning("No more stock available");
-
       return;
     }
 
@@ -245,8 +233,8 @@ const CreateBill = () => {
     });
 
     item.billQuantity += 1;
-
-    item.total = item.billQuantity * item.price;
+    // ✅ Fix 1: Number() ensures price is numeric
+    item.total = Number(item.price) * item.billQuantity;
 
     setBillItems(updatedItems);
 
@@ -259,12 +247,10 @@ const CreateBill = () => {
 
   const decreaseQuantity = async (index) => {
     const updatedItems = [...billItems];
-
     const item = updatedItems[index];
 
     if (item.billQuantity <= 1) {
       removeItem(index);
-
       return;
     }
 
@@ -273,8 +259,8 @@ const CreateBill = () => {
     });
 
     item.billQuantity -= 1;
-
-    item.total = item.billQuantity * item.price;
+    // ✅ Fix 1: Number() ensures price is numeric
+    item.total = Number(item.price) * item.billQuantity;
 
     setBillItems(updatedItems);
 
@@ -309,15 +295,14 @@ const CreateBill = () => {
   // TOTALS
   // =========================================
 
- const subTotal = billItems.reduce(
-  (total, item) => total + Number(item.total),
-  0
-);
+  // ✅ Fix 2: Number() on item.total prevents NaN in reduce
+  const subTotal = billItems.reduce(
+    (total, item) => total + Number(item.total),
+    0,
+  );
 
   const gstPercentage = 18;
-
   const gstAmount = (subTotal * gstPercentage) / 100;
-
   const finalTotal = subTotal + gstAmount;
 
   // =========================================
@@ -327,29 +312,21 @@ const CreateBill = () => {
   const saveBill = async () => {
     if (billItems.length === 0) {
       toast.warning("No items in bill ⚠");
-
       return;
     }
 
     const billData = {
       invoiceNumber: invoiceNumber,
-
       customerName: customerName,
-
       customerPhone: customerPhone,
-
       finalTotal: finalTotal,
-
       billDate: new Date().toISOString().split("T")[0],
-
       items: billItems,
     };
 
     try {
       await axios.post(`${API}/save-bill`, billData);
-
       toast.success("Bill Saved Successfully ✅");
-
       setBillItems([]);
     } catch (error) {
       toast.error("Failed to Save Bill ❌");
@@ -369,15 +346,11 @@ const CreateBill = () => {
     });
 
     const imgData = canvas.toDataURL("image/png");
-
     const pdf = new jsPDF("p", "mm", "a4");
-
     const pdfWidth = pdf.internal.pageSize.getWidth();
-
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
     pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-
     pdf.save(`${invoiceNumber}.pdf`);
   };
 
@@ -457,7 +430,8 @@ const CreateBill = () => {
                     margin: 0,
                   }}
                 >
-                  Welcome back, {aiCustomer?.name?.split(" ")[0] || "Customer"}! 👋
+                  Welcome back, {aiCustomer?.name?.split(" ")[0] || "Customer"}!
+                  👋
                 </h2>
                 <p
                   style={{ fontSize: 12, color: "#3B6D11", margin: "3px 0 0" }}
@@ -534,6 +508,7 @@ const CreateBill = () => {
           </div>
         </div>
       )}
+
       {/* MAIN PAGE */}
 
       <div className="create-bills-container">
@@ -582,7 +557,7 @@ const CreateBill = () => {
                 const val = e.target.value;
                 setCustomerPhone(val);
                 if (val.length === 10) {
-                  fetchRecommendations(val); // 👈 fires instantly at 10 digits
+                  fetchRecommendations(val);
                 }
               }}
               onBlur={() => {
@@ -592,7 +567,7 @@ const CreateBill = () => {
               }}
             />
           </div>
-          {/* Loading indicator — shows while AI is fetching */}
+
           {aiLoading && (
             <p
               style={{
@@ -723,7 +698,6 @@ const CreateBill = () => {
                     verticalAlign: "middle",
                   }}
                 />
-
                 {product.quantity === 0 ? "Out of Stock" : "Add to Bill"}
               </button>
             </div>
@@ -736,10 +710,8 @@ const CreateBill = () => {
           <div className="invoice-header">
             <div>
               <h1 className="shop-name">Billing Software</h1>
-
               <p>Smart Billing & Inventory System</p>
             </div>
-
             <div className="invoice-number">{invoiceNumber}</div>
           </div>
 
@@ -748,7 +720,6 @@ const CreateBill = () => {
               <p>
                 <strong>Customer</strong>
               </p>
-
               <p>{customerName || "—"}</p>
             </div>
 
@@ -756,7 +727,6 @@ const CreateBill = () => {
               <p>
                 <strong>Phone</strong>
               </p>
-
               <p>{customerPhone || "—"}</p>
             </div>
 
@@ -764,7 +734,6 @@ const CreateBill = () => {
               <p>
                 <strong>Date</strong>
               </p>
-
               <p>{new Date().toLocaleDateString()}</p>
             </div>
           </div>
@@ -839,8 +808,7 @@ const CreateBill = () => {
             <h2>Subtotal: ₹ {subTotal.toFixed(2)}</h2>
 
             <h2>
-              GST ({gstPercentage}
-              %): ₹ {gstAmount.toFixed(2)}
+              GST ({gstPercentage}%): ₹ {gstAmount.toFixed(2)}
             </h2>
 
             <h1 className="final-amount">
